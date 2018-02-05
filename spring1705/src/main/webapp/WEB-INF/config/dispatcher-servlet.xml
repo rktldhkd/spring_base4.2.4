@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans:beans xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:beans="http://www.springframework.org/schema/beans"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xsi:schemaLocation="http://www.springframework.org/schema/mvc 
+						http://www.springframework.org/schema/mvc/spring-mvc.xsd 
+						http://www.springframework.org/schema/beans 
+						http://www.springframework.org/schema/beans/spring-beans.xsd  
+						http://www.springframework.org/schema/context 
+						http://www.springframework.org/schema/context/spring-context.xsd 
+						http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd">
+
+
+	<!-- DispatcherServlet Context: defines this servlet's request-processing infrastructure -->
+	
+	<!-- Controller 애노테이션만 검색한다. 나머지(@Component, @Service, @Repository등)는 context-common.xml에서 한다.-->
+	<!-- use-default-filters="false"라는 값을 주게되면 어노테이션을 자동으로 검색하지 않겠다는 뜻이 된다. 
+		즉, 여기선 모든 애노테이션을 검색하지 않고, Controller 애노테이션만 검색한다는 것이다. -->	
+	<!-- <context:component-scan> 태그를 사용하면 @Component 어노테이션 뿐만 아니라 @Required, @Autowired와 같은 
+		어노테이션이 함께 적용 즉, <context:annotation-config/> 역할도 한다. -->
+	<!-- <context:component-scan base-package="spring1705"></context:component-scan>  -->
+	<context:component-scan base-package="spring1705" use-default-filters="false">
+		<context:include-filter type="annotation" expression="org.springframework.stereotype.Controller"/>
+	</context:component-scan> 
+	
+	
+	<!-- Enables the Spring MVC @Controller programming model -->
+	<!-- 	파라미터를 받는 사용자 정의 맵을 사용하기 위해서 사용자 정의 resolver 등록 -->
+	<mvc:annotation-driven>
+		<mvc:argument-resolvers>
+			<beans:bean class="spring1705.common.resolver.CustomMapArgumentResolver"></beans:bean>
+		</mvc:argument-resolvers>
+	</mvc:annotation-driven>
+	
+	<!-- 
+		web.xml에서 sevlet-mapping의 url-pattern을 '/'로 설정했다면, 이미지나 css파일등의 자원등을 경로지정하여 불러올 때
+		dispatcher servlet이 먼저 가로채서 이미지나 css파일등을 못 불러올 수도 있다.
+		resources 태그는 dispatcher가 resources태그에서 지정한 경로를 거르지 말라고 하는 설정이다.
+		<default-servlet-handler/>를 설정하면  모든 경로를 다 허용할 수 있다. 	-->
+	<mvc:resources location="/resources/" mapping="/resources/**"></mvc:resources>
+	
+	<!-- log4j 등을 위한 인터셉터 설정 -->
+	<!-- dispatcher와 동일한 위치에 인터셉터를 설정하였다. -->
+	<mvc:interceptors>
+        <mvc:interceptor>
+            <mvc:mapping path="/**"/><!-- 인터셉터가 동작할 url -->
+            <beans:bean id="loggerInterceptor" class="spring1705.common.logger.LoggerInterceptor"></beans:bean>
+        </mvc:interceptor>
+    </mvc:interceptors>
+	
+	<!-- aop 설정 -->
+	<aop:aspectj-autoproxy/>
+    <beans:bean id="loggerAspect" class="spring1705.common.logger.LoggerAspect" />
+	
+	
+ 	<beans:bean class="org.springframework.web.servlet.mvc.annotation.DefaultAnnotationHandlerMapping"/>
+    <beans:bean class="org.springframework.web.servlet.view.BeanNameViewResolver" p:order="0"/>
+    <beans:bean class="org.springframework.web.servlet.mvc.annotation.AnnotationMethodHandlerAdapter" />
+    <!-- 
+    	spring 3.2 이상 버전 부터는, MappingJacksonJasonView가 없어졌으므로 
+    	MappingJackson2JsonView 클래스를 사용. 이를 위해서 pom.xml에 org.codehaus... 대신
+    	com.fasterxml... 을 의존 추가해서 사용.
+    -->
+    <beans:bean id="jsonView" class="org.springframework.web.servlet.view.json.MappingJackson2JsonView" />    
+	
+	 <beans:bean
+        class="org.springframework.web.servlet.view.UrlBasedViewResolver" p:order="1"
+        p:viewClass="org.springframework.web.servlet.view.JstlView"
+        p:prefix="/WEB-INF/jsp/" p:suffix=".jsp">
+    </beans:bean>
+</beans:beans>
