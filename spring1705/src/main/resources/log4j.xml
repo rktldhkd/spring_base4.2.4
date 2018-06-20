@@ -16,6 +16,7 @@
     </appender>
 	
 	<!-- Application Loggers -->
+	<!-- name 속성의 값이 패키지 경로와 다르면 로그 출력되지 않으므로 유의한다. -->
 	<logger name="spring1705" additivity="false">
 		<level value="debug" />
 		<appender-ref ref="console"/>
