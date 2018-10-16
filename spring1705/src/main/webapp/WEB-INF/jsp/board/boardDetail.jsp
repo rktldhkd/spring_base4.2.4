@@ -32,7 +32,6 @@
 
 		function fn_openBoardUpdate() {
 			var idx = "${map.IDX}";
-			
 			var comSubmit = new ComSubmit();
 			comSubmit.setUrl("<c:url value='/board/openBoardUpdate' />");
 			comSubmit.addParam("IDX", idx);
